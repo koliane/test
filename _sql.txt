@@ -1,0 +1,9 @@
+SELECT id, group_id, lead-row_number as count 
+	FROM (SELECT *, lead(row_number, 1, last_value) over () 
+		  FROM  (SELECT *, last_value(row_number+1) over () 
+				 FROM (SELECT id, group_id, lag(group_id) OVER (), row_number() over() 
+					   FROM users) 
+				 as t1) 
+		  as t2 
+		  WHERE lag IS NULL OR lag-group_id!=0 OR row_number=last_value) 
+  	as t3;
